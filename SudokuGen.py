@@ -1,13 +1,14 @@
 import numpy as np
 import math
+import CheckNumber
 
 class SudokuGenerator:
     size = 0
     difficulty = 0
-    def __init__(self, size, difficulty): #TODO: add difficulty after generation
-        self.size = size
-        self.difficulty = difficulty
-        self.sudokuArray = self.fillSudoku(np.zeros((self.size,self.size)))
+    def __init__(self, size, difficulty): 
+        self.size = size #only sizes avaible: 4, 9, 16, 25, 36, etc.
+        self.difficulty = difficulty #0 -> easiest, 1 -> hardest
+        self.sudokuArray = self.applyDifficulty(self.fillSudoku(np.zeros((self.size,self.size))), self.difficulty)
 
     def fillSudoku(self, emptyArray):
         stepY = 0
@@ -24,7 +25,7 @@ class SudokuGenerator:
                     index = np.random.randint(1, len(temp))
                 else:
                     index = 0
-                if self.checkIfNumberOk(emptyArray, temp[index], stepX, stepY):
+                if CheckNumber.checkIfNumberOk(self, emptyArray, temp[index], stepX, stepY):
                     emptyArray[stepY, stepX] = temp[index]
                     temp = np.delete(temp, index)
                     stepX += 1
@@ -47,21 +48,16 @@ class SudokuGenerator:
                         break
         return emptyArray
 
-    def checkIfNumberOk(self, array, number, x, y): #function to check numbers in y and x axis and in the 'square'
-        if number not in array[:,x] and number not in array[y,:]:
-            squareSize = int(math.pow(len(array),0.5))
-            squarePosX = int(math.floor(x/squareSize) * squareSize)
-            squarePosY = int(math.floor(y/squareSize) * squareSize)
-            for y in range(squarePosY, squarePosY + squareSize):
-                for x in range(squarePosX, squarePosX + squareSize):
-                    if number != array[y,x]:
-                        continue
-                    else:
-                        return False
-            return True
-        else:
-            return False
+    def applyDifficulty(self, array, difficulty):
+        y = 0
+        while y < len(array):
+            x = 0
+            while x < len(array):
+                if  difficulty > np.random.random_sample():
+                    array[y,x] = 0
+                x += 1
+            y += 1
+        return array
 
-s = SudokuGenerator(9,0)
-print(s.sudokuArray)
+
 

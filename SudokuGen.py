@@ -2,13 +2,9 @@ import numpy as np
 import math
 import CheckNumber
 
-class SudokuGenerator:
+class SudokuGenerator(object):
     size = 0
     difficulty = 0
-    def __init__(self, size, difficulty): 
-        self.size = size #only sizes avaible: 4, 9, 16, 25, 36, etc.
-        self.difficulty = difficulty #0 -> easiest, 1 -> hardest
-        self.sudokuArray = self.applyDifficulty(self.fillSudoku(np.zeros((self.size,self.size))), self.difficulty)
 
     def fillSudoku(self, emptyArray):
         stepY = 0
@@ -19,10 +15,11 @@ class SudokuGenerator:
         while stepY < size:
             stepX = 0
             falseCountGlobal = 0
+            falseRowCount = 0
             temp = np.arange(1,size+1)
             while stepX < size:
                 if len(temp) != 1:
-                    index = np.random.randint(1, len(temp))
+                    index = np.random.randint(0, len(temp))
                 else:
                     index = 0
                 if CheckNumber.checkIfNumberOk(self, emptyArray, temp[index], stepX, stepY):
@@ -45,6 +42,11 @@ class SudokuGenerator:
                         falseCount = 0
                         falseCountGlobal = 0
                         emptyArray[stepY,:] = np.zeros(size)
+                        falseRowCount += 1
+                        if falseRowCount == size:
+                            falseRowCount = 0
+                            emptyArray[stepY,:] = np.zeros(size)
+                            stepY -= 1
                         break
         return emptyArray
 
@@ -59,5 +61,7 @@ class SudokuGenerator:
             y += 1
         return array
 
-
-
+    def getSudokuArray(self, size, difficulty):
+        self.size = size #only sizes avaible: 4, 9, 16, 25, 36, etc.
+        self.difficulty = difficulty #0 -> easiest, 1 -> hardest
+        return self.applyDifficulty(self.fillSudoku(np.zeros((self.size,self.size))), self.difficulty)
